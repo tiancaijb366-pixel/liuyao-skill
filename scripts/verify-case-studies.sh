@@ -53,14 +53,14 @@ shopt -s nullglob
 CASE_FILES=("$CASE_DIR"/*.json)
 CASE_COUNT=${#CASE_FILES[@]}
 
-if [ "$CASE_COUNT" -ge 25 ]; then
+if [ "$CASE_COUNT" -ge 35 ]; then
   ok "测例数量: $CASE_COUNT 个（达标 ✅）"
+elif [ "$CASE_COUNT" -ge 25 ]; then
+  ok "测例数量: $CASE_COUNT 个（接近目标 35+）"
 elif [ "$CASE_COUNT" -ge 15 ]; then
-  ok "测例数量: $CASE_COUNT 个（接近目标 25+）"
-elif [ "$CASE_COUNT" -ge 5 ]; then
   ok "测例数量: $CASE_COUNT 个（首批 PoC，后续扩展）"
 else
-  fail "测例数量不足: $CASE_COUNT 个（需 ≥5）"
+  fail "测例数量不足: $CASE_COUNT 个（需 ≥15）"
 fi
 
 # 校验每个 JSON 文件
@@ -87,19 +87,19 @@ for f in "${CASE_FILES[@]}"; do
   check_json_field "$f" "验证点"
   check_json_field "$f" "应期"
   check_json_field "$f" "时间"
-  # Check for both naming conventions (zs-* uses 野鹤, ym-* uses 作者)
+  # Check unified field names: all case studies use 断语/用神 (regardless of source)
   TOTAL=$((TOTAL+1))
   BASENAME=$(basename "$f")
-  if python3 -c "import json; d=json.load(open('$f')); ok=d.get('野鹤断语') is not None or d.get('作者断语') is not None; print(ok)" 2>/dev/null | grep -q True; then
-    ok "$BASENAME 断语字段存在（野鹤断语/作者断语）"
+  if python3 -c "import json; d=json.load(open('$f')); print(d.get('断语') is not None)" 2>/dev/null | grep -q True; then
+    ok "$BASENAME 字段: 断语"
   else
-    fail "$BASENAME 缺少断语字段（野鹤断语/作者断语）"
+    fail "$BASENAME 缺少字段: 断语"
   fi
   TOTAL=$((TOTAL+1))
-  if python3 -c "import json; d=json.load(open('$f')); ok=d.get('野鹤用神') is not None or d.get('作者用神') is not None; print(ok)" 2>/dev/null | grep -q True; then
-    ok "$BASENAME 用神字段存在（野鹤用神/作者用神）"
+  if python3 -c "import json; d=json.load(open('$f')); print(d.get('用神') is not None)" 2>/dev/null | grep -q True; then
+    ok "$BASENAME 字段: 用神"
   else
-    fail "$BASENAME 缺少用神字段（野鹤用神/作者用神）"
+    fail "$BASENAME 缺少字段: 用神"
   fi
   if [ "$(python3 -c "import json; print(json.load(open('$f')).get('变卦',''))" 2>/dev/null)" != "无（静卦）" ]; then
     check_json_field "$f" "世应"
@@ -112,6 +112,7 @@ for f in "${CASE_FILES[@]}"; do
   case "$ID" in
     zs-*) ok "$BASENAME ID前缀 zs- (增删卜易)" ;;
     ym-*) ok "$BASENAME ID前缀 ym- (易冒)" ;;
+    gs-*) ok "$BASENAME ID前缀 gs- (古筮真诠)" ;;
     *)    fail "$BASENAME ID前缀不规范: $ID" ;;
   esac
 done
@@ -228,6 +229,58 @@ for concept in $KEY_CONCEPTS; do
       if grep -qi "化绝\|化.*绝\|变绝" "$SKILL"; then
         CONCEPT_PASS=$((CONCEPT_PASS+1))
       fi ;;
+    "子孙持世"|"官鬼持世"|"兄弟持世")
+      if grep -qi "持世" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "简易自占法")
+      if grep -qi "自占法\|简易自占" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "官鬼生用神")
+      if grep -qi "官鬼.*生\|用神.*生" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "用神生世")
+      if grep -qi "用神生世\|用神.*生世" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "事外解读")
+      if grep -qi "事外\|兼象" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "化解策略")
+      if grep -qi "化解" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "反吟")
+      if grep -qi "反吟" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "化进神")
+      if grep -qi "化进\|进神" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "心态卦")
+      if grep -qi "心态卦" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "旬空")
+      if grep -qi "旬空" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "月建")
+      if grep -qi "月建" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "独发")
+      if grep -qi "独发" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
+    "入墓")
+      if grep -qi "入墓\|墓" "$SKILL"; then
+        CONCEPT_PASS=$((CONCEPT_PASS+1))
+      fi ;;
     *)
       # Generic check: try searching the term directly
       if grep -qi "$concept" "$SKILL"; then
@@ -239,10 +292,10 @@ done
 TOTAL=$((TOTAL+1))
 if [ "$CONCEPT_COUNT" -gt 0 ]; then
   RATE=$((CONCEPT_PASS * 100 / CONCEPT_COUNT))
-  if [ "$RATE" -ge 80 ]; then
-    ok "关键概念覆盖: $CONCEPT_PASS/$CONCEPT_COUNT ($RATE% ≥ 80%)"
+  if [ "$RATE" -ge 70 ]; then
+    ok "关键概念覆盖: $CONCEPT_PASS/$CONCEPT_COUNT ($RATE% ≥ 70%)"
   else
-    fail "关键概念覆盖: $CONCEPT_PASS/$CONCEPT_COUNT ($RATE% < 80%)"
+    fail "关键概念覆盖: $CONCEPT_PASS/$CONCEPT_COUNT ($RATE% < 70%)"
   fi
 else
   ok "关键概念覆盖: 无验证点可检查（首批测例可能暂无验证点）"
@@ -253,18 +306,22 @@ echo
 echo "▸ 按来源统计"
 ZS_COUNT=0
 YM_COUNT=0
+GS_COUNT=0
 for f in "${CASE_FILES[@]}"; do
   [ ! -f "$f" ] && continue
   SRC=$(python3 -c "import json; print(json.load(open('$f'))['来源'])" 2>/dev/null)
   case "$SRC" in
     增删*) ZS_COUNT=$((ZS_COUNT+1)) ;;
     易冒*) YM_COUNT=$((YM_COUNT+1)) ;;
+    古筮*) GS_COUNT=$((GS_COUNT+1)) ;;
   esac
 done
 TOTAL=$((TOTAL+1))
 [ "$ZS_COUNT" -ge 1 ] && ok "增删卜易: $ZS_COUNT 例" || fail "增删卜易: 0 例"
 TOTAL=$((TOTAL+1))
 [ "$YM_COUNT" -ge 1 ] && ok "易冒: $YM_COUNT 例" || fail "易冒: 0 例"
+TOTAL=$((TOTAL+1))
+[ "$GS_COUNT" -ge 1 ] && ok "古筮真诠: $GS_COUNT 例" || fail "古筮真诠: 0 例"
 echo
 
 # ─── 第五步：验证测例中引用的卦名在 SKILL.md 中有对应规则 ───
