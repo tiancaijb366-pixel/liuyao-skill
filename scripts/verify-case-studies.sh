@@ -87,8 +87,20 @@ for f in "${CASE_FILES[@]}"; do
   check_json_field "$f" "验证点"
   check_json_field "$f" "应期"
   check_json_field "$f" "时间"
-  check_json_field "$f" "作者断语"
-  check_json_field "$f" "作者用神"
+  # Check for both naming conventions (zs-* uses 野鹤, ym-* uses 作者)
+  TOTAL=$((TOTAL+1))
+  BASENAME=$(basename "$f")
+  if python3 -c "import json; d=json.load(open('$f')); ok=d.get('野鹤断语') is not None or d.get('作者断语') is not None; print(ok)" 2>/dev/null | grep -q True; then
+    ok "$BASENAME 断语字段存在（野鹤断语/作者断语）"
+  else
+    fail "$BASENAME 缺少断语字段（野鹤断语/作者断语）"
+  fi
+  TOTAL=$((TOTAL+1))
+  if python3 -c "import json; d=json.load(open('$f')); ok=d.get('野鹤用神') is not None or d.get('作者用神') is not None; print(ok)" 2>/dev/null | grep -q True; then
+    ok "$BASENAME 用神字段存在（野鹤用神/作者用神）"
+  else
+    fail "$BASENAME 缺少用神字段（野鹤用神/作者用神）"
+  fi
   if [ "$(python3 -c "import json; print(json.load(open('$f')).get('变卦',''))" 2>/dev/null)" != "无（静卦）" ]; then
     check_json_field "$f" "世应"
     check_json_field "$f" "动爻"
