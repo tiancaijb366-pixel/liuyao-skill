@@ -1,0 +1,17 @@
+{
+  "name": "liuyao-skill",
+  "version": "1.0.0",
+  "description": "六爻占卜解读 Skill — 基于《增删卜易》《易冒》的结构化解读流程，支持多 Agent 使用",
+  "keywords": [
+    "pi-package",
+    "liuyao",
+    "divination",
+    "i-ching"
+  ],
+  "license": "MIT",
+  "pi": {
+    "skills": [
+      "./"
+    ]
+  }
+}

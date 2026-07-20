@@ -12,9 +12,9 @@
 
 ```json
 {
-  "name": "liuyao-divination",
+  "name": "liuyao-skill",
   "version": "1.0.0",
-  "keywords": ["pi-package", "liuyao", "divination"],
+  "keywords": ["pi-package", "liuyao", "divination", "i-ching"],
   "pi": {
     "skills": ["./"]
   }
@@ -23,8 +23,8 @@
 
 ### 2. GitHub 仓库
 
-- 创建 GitHub 仓库（名称待定，建议 `liuyao-skill`）
-- `git init` → `git remote add origin ...` → push
+- GitHub 仓库已存在（`tiancaijb366-pixel/liuyao-skill`）
+- 推送当前分支
 
 ### 3. MIT LICENSE
 
@@ -33,8 +33,10 @@
 ### 4. README 完善
 
 - 安装方式：`pi install git:...`
-- 使用方法（快速开始）
-- 多 agent 使用说明（重新整理现有 README.md）
+- 快速开始使用示例
+- 多 agent 使用说明
+- GUI 排盘工具推荐
+- 占卜结果示例
 
 ## 验收标准
 
