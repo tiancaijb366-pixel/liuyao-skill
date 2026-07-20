@@ -3,7 +3,7 @@
 # 用法：bash scripts/verify-appendix-tables.sh
 set -eo pipefail
 
-SKILL="../SKILL.md"
+SKILL="$(dirname "$0")/../SKILL.md"
 PASS=0
 FAIL=0
 TOTAL=0
